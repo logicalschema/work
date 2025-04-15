@@ -1,0 +1,129 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nginx
+  namespace: cunyedu
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-cf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+            defaultMode: 420
+        - name: mime-types
+          configMap:
+            name: nginx-cf
+            items:
+              - key: mime.types
+                path: mime.types
+            defaultMode: 420
+        - name: php-fpm-conf
+          configMap:
+            name: nginx-cf
+            items:
+              - key: php-fpm.conf
+                path: php-fpm.conf
+            defaultMode: 420
+        - name: fastcgiparams-conf
+          configMap:
+            name: nginx-cf
+            items:
+              - key: fastcgiparams
+                path: fastcgi_params
+            defaultMode: 420
+        - name: restrictions-conf
+          configMap:
+            name: nginx-cf
+            items:
+              - key: restrictions.conf
+                path: restrictions.conf
+            defaultMode: 420
+        - name: wordpress-conf
+          configMap:
+            name: nginx-cf
+            items:
+              - key: wordpress.conf
+                path: wordpress.conf
+            defaultMode: 420
+        - name: wp-supercache-conf
+          configMap:
+            name: nginx-cf
+            items:
+              - key: wp-supercache.conf
+                path: wp-supercache.conf
+            defaultMode: 420
+        - name: wordpress-shared-vol
+          persistentVolumeClaim:
+            claimName: wordpress-shared-pvc
+      containers:
+        - name: nginx
+          image: >-
+            quay.io/someuser/nginx@sha256:hash-here
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-conf
+              readOnly: true
+              mountPath: /etc/nginx
+            - name: mime-types
+              readOnly: true
+              mountPath: /etc/nginx/mimetypes
+            - name: php-fpm-conf
+              readOnly: true
+              mountPath: /etc/nginx/conf.d/phpfpmconf
+            - name: fastcgiparams-conf
+              readOnly: true
+              mountPath: /etc/nginx/fastcgiparams
+            - name: restrictions-conf
+              readOnly: true
+              mountPath: /etc/nginx/global/restrictionsconf
+            - name: wordpress-conf
+              readOnly: true
+              mountPath: /etc/nginx/global/wordpressconf
+            - name: wp-supercache-conf
+              readOnly: true
+              mountPath: /etc/nginx/global/wpsupercacheconf
+            - name: wordpress-shared-vol
+              mountPath: /var/www/html
+        - name: wordpress-fpm
+          image: >-
+            quay.io/someuser/wordpress-fpm@sha256:hash-here
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: mariadb-cuny
+            - name: WORDPRESS_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb
+                  key: MYSQL_USER
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb
+                  key: MYSQL_PASSWORD
+            - name: WORDPRESS_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mariadb-cuny-configmap
+                  key: MYSQL_DATABASE
+            - name: WORDPRESS_TABLE_PREFIX
+              value: cuny_
+          volumeMounts:
+            - name: wordpress-shared-vol
+              mountPath: /var/www/html
