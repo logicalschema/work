@@ -9,7 +9,8 @@ ENV APP_USER="www-wordpress" \
     INSTALL_EXTS="php-intl php-mysqlnd php-gd php-xml php-mbstring php-json php-pear php-pecl-zip php-opcache php-cli" 
     
 # Enable EPEL and install packages
-RUN microdnf update -y && \
+RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+    microdnf update -y && \
     microdnf module enable php:8.3 -y && \
     microdnf install -y $INSTALL_PKGS $INSTALL_EXTS && \
     microdnf install -y libmemcached-awesome libmemcached-awesome-devel ImageMagick ImageMagick-devel && \
