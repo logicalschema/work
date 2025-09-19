@@ -24,6 +24,7 @@ RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rp
 RUN sed -i "s/^user = apache$/user = ${APP_USER}/" /etc/php-fpm.d/www.conf && \ 
     sed -i "s/^group = apache$/group = ${APP_USER}/" /etc/php-fpm.d/www.conf && \
     sed -i "s/^listen = \/run\/php-fpm\/www.sock$/listen = 0.0.0.0:9000/" /etc/php-fpm.d/www.conf && \
+    sed -i 's/^;date.timezone =$/date.timezone = \x27America\/New_York\x27/' /etc/php.ini && \
     useradd -u ${APP_UID} ${APP_USER} && \
     mkdir -p /run/php-fpm && \
     chown -R ${APP_UID}:0 /run/php-fpm /var/www/html /var/log/php-fpm && \
