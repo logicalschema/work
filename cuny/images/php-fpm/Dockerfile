@@ -6,7 +6,7 @@ ENV APP_USER="www-wordpress" \
     APP_UID="1001" \
     APP_PORT="9000" \
     INSTALL_PKGS="vi php php-devel php-fpm" \
-    INSTALL_EXTS="php-intl php-mysqlnd php-gd php-xml php-mbstring php-json php-pear php-pecl-zip php-opcache php-cli" \
+    INSTALL_EXTS="php-intl php-mysqlnd php-gd php-xml php-mbstring php-json php-pear php-pecl-zip php-opcache php-cli" 
     
 # Enable EPEL and install packages
 RUN microdnf update -y && \
